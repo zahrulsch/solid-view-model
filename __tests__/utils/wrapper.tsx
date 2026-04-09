@@ -1,5 +1,5 @@
 import { A, Route, Router } from "@solidjs/router"
-import { For } from "solid-js"
+import { For, JSXElement } from "solid-js"
 import { ViewModelProvider } from "../../src/components/view-model-provider"
 
 type Link = {
@@ -40,5 +40,17 @@ function Container(props?: ContainerProps) {
                 )}
             </For>
         </div>
+    )
+}
+
+interface RouterWrapperProps {
+    children?: JSXElement
+}
+
+export function RouterWrapper(props: RouterWrapperProps) {
+    return (
+        <Router>
+            <Route path="*404" component={() => props.children} />
+        </Router>
     )
 }

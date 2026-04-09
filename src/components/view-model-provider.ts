@@ -12,23 +12,33 @@ export function ViewModelProvider(props: ViewModelProviderProps) {
     const location = useLocation()
     const navigate = useNavigate()
 
-    createRenderEffect(() => {
+    function registerViewModel(viewModel: any) {
         let name: string | undefined
 
-        if (props.viewModel) {
-            name = Object.getPrototypeOf(props.viewModel.constructor).name
+        if (viewModel) {
+            name = Object.getPrototypeOf(viewModel.constructor).name
         }
 
         if (name) {
-            const unregister = Core.instance.registerViewModel(name, props.viewModel)
+            const unregister = Core.instance.registerViewModel(name, viewModel)
 
             onCleanup(() => {
-                if (isViewModel(props.viewModel)) {
-                    props.viewModel.dispose()
+                if (isViewModel(viewModel)) {
+                    viewModel.dispose()
                 }
 
                 unregister()
             })
+        }
+    }
+
+    createRenderEffect(() => {
+        const viewModel = props.viewModel
+
+        if (Array.isArray(viewModel)) {
+            viewModel.forEach(registerViewModel)
+        } else if (viewModel) {
+            registerViewModel(viewModel)
         }
     })
 
