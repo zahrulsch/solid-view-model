@@ -1,5 +1,5 @@
 import { onCleanup, onMount } from "solid-js"
-import { createStore } from "solid-js/store"
+import { createStore, reconcile } from "solid-js/store"
 import { Result } from "../core/result"
 import { Action } from "../listenable"
 
@@ -14,7 +14,7 @@ export function actionOf<V extends object, K extends PickActionFrom<V>>(viewMode
 
     onMount(() => {
         function listener() {
-            setState(action.result)
+            setState(reconcile(action.result))
         }
 
         const unsubscribe = action.subscribe(listener)
