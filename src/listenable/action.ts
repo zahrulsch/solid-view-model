@@ -1,4 +1,4 @@
-import { Result } from "../core/result"
+import { Result, TResult } from "../core/result"
 import { Listenable } from "./listenable"
 
 export type ActionFunction<P extends any[], R> = (signal: AbortSignal) => (...args: P) => Promise<R>
@@ -18,7 +18,7 @@ export type ActionOptions<T = any, D = any, E = Error> = {
 export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
     private controller: AbortController = new AbortController()
 
-    public result: Result<D, E> = Result.idle()
+    public result: TResult<D, E> = Result.idle()
 
     constructor(
         private func: ActionFunction<P, R>,
@@ -44,7 +44,7 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
             this.controller = new AbortController()
         }
 
-        if (this.result.isSuccess() || this.result.isRetrying()) {
+        if (this.result.type === "success" || this.result.type === "retrying") {
             this.result = Result.retrying(this.result.value)
         } else {
             this.result = Result.pending()

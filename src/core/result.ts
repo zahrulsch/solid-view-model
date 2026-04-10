@@ -1,179 +1,63 @@
-export abstract class Result<T, E = Error> {
-    abstract isSuccess(): this is Success<T, E>
-    abstract isFailure(): this is Failure<T, E>
-    abstract isPending(): this is Pending<T, E>
-    abstract isRetrying(): this is Retrying<T, E>
-    abstract isIdle(): this is Idle<T, E>
+export type TResult<T, E = Error> =
+    | {
+          type: "success"
+          value: T
+      }
+    | {
+          type: "failure"
+          error: E
+      }
+    | {
+          type: "pending"
+      }
+    | {
+          type: "retrying"
+          value?: T | undefined
+      }
+    | {
+          type: "idle"
+      }
 
-    abstract type: "success" | "failure" | "pending" | "retrying" | "idle"
-
-    asData(): T {
-        if (this.isSuccess()) return this.value
-        throw new Error("Result is not a success")
+export class Result {
+    static success<T, E = Error>(value: T): TResult<T, E> {
+        return { type: "success", value }
     }
 
-    asError(): E {
-        if (this.isFailure()) return this.error
-        throw new Error("Result is not a failure")
+    static failure<T, E = Error>(error: E): TResult<T, E> {
+        return { type: "failure", error }
     }
 
-    static success<T, E = Error>(value: T): Result<T, E> {
-        return new Success(value)
+    static pending<T, E = Error>(): TResult<T, E> {
+        return { type: "pending" }
     }
 
-    static failure<T, E = Error>(error: E): Result<T, E> {
-        return new Failure(error)
+    static retrying<T, E = Error>(value?: T): TResult<T, E> {
+        return { type: "retrying", value }
     }
 
-    static pending<T, E = Error>(): Result<T, E> {
-        return new Pending()
+    static idle<T, E = Error>(): TResult<T, E> {
+        return { type: "idle" }
     }
 
-    static retrying<T, E = Error>(value?: T): Result<T, E> {
-        return new Retrying(value)
+    static isSuccess<T>(result: TResult<T>): result is Extract<TResult<T>, { type: "success" }> {
+        return result.type === "success"
     }
 
-    static idle<T, E = Error>(): Result<T, E> {
-        return new Idle()
-    }
-}
-
-export class Success<T = any, E = Error> extends Result<T, E> {
-    constructor(public value: T) {
-        super()
+    static isFailure<E>(
+        result: TResult<any, E>
+    ): result is Extract<TResult<any, E>, { type: "failure" }> {
+        return result.type === "failure"
     }
 
-    type: "success" = "success"
-
-    isSuccess(): this is Success<T, E> {
-        return true
+    static isPending(result: TResult<any>): result is Extract<TResult<any>, { type: "pending" }> {
+        return result.type === "pending"
     }
 
-    isFailure(): this is Failure<T, E> {
-        return false
+    static isRetrying<T>(result: TResult<T>): result is Extract<TResult<T>, { type: "retrying" }> {
+        return result.type === "retrying"
     }
 
-    isPending(): this is Pending<T, E> {
-        return false
-    }
-
-    isRetrying(): this is Retrying<T, E> {
-        return false
-    }
-
-    isIdle(): this is Idle<T, E> {
-        return false
-    }
-}
-
-export class Failure<T = any, E = Error> extends Result<T, E> {
-    constructor(public error: E) {
-        super()
-    }
-
-    type: "failure" = "failure"
-
-    isSuccess(): this is Success<T, E> {
-        return false
-    }
-
-    isFailure(): this is Failure<T, E> {
-        return true
-    }
-
-    isPending(): this is Pending<T, E> {
-        return false
-    }
-
-    isRetrying(): this is Retrying<T, E> {
-        return false
-    }
-
-    isIdle(): this is Idle<T, E> {
-        return false
-    }
-}
-
-export class Pending<T = any, E = Error> extends Result<T, E> {
-    constructor() {
-        super()
-    }
-
-    type: "pending" = "pending"
-
-    isSuccess(): this is Success<T, E> {
-        return false
-    }
-
-    isFailure(): this is Failure<T, E> {
-        return false
-    }
-
-    isPending(): this is Pending<T, E> {
-        return true
-    }
-
-    isRetrying(): this is Retrying<T, E> {
-        return false
-    }
-
-    isIdle(): this is Idle<T, E> {
-        return false
-    }
-}
-
-export class Retrying<T = any, E = Error> extends Result<T, E> {
-    constructor(public value?: T) {
-        super()
-    }
-
-    type: "retrying" = "retrying"
-
-    isSuccess(): this is Success<T, E> {
-        return false
-    }
-
-    isFailure(): this is Failure<T, E> {
-        return false
-    }
-
-    isPending(): this is Pending<T, E> {
-        return false
-    }
-
-    isRetrying(): this is Retrying<T, E> {
-        return true
-    }
-
-    isIdle(): this is Idle<T, E> {
-        return false
-    }
-}
-
-export class Idle<T = any, E = Error> extends Result<T, E> {
-    constructor() {
-        super()
-    }
-
-    type: "idle" = "idle"
-
-    isSuccess(): this is Success<T, E> {
-        return false
-    }
-
-    isFailure(): this is Failure<T, E> {
-        return false
-    }
-
-    isPending(): this is Pending<T, E> {
-        return false
-    }
-
-    isRetrying(): this is Retrying<T, E> {
-        return false
-    }
-
-    isIdle(): this is Idle<T, E> {
-        return true
+    static isIdle(result: TResult<any>): result is Extract<TResult<any>, { type: "idle" }> {
+        return result.type === "idle"
     }
 }
