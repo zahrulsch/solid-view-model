@@ -38,6 +38,12 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
         return this.controller.signal.aborted
     }
 
+    public reset() {
+        this.controller.abort()
+        this.result = Result.idle()
+        this.emit()
+    }
+
     public execute(...args: P): void {
         if (!this.options.signal) {
             this.controller.abort()
