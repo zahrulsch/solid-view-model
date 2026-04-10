@@ -1,4 +1,4 @@
-import { Param, State, Store } from "../listenable"
+import { Action, Param, State, Store } from "../listenable"
 
 export * from "./view-model.decorator"
 
@@ -18,6 +18,8 @@ export type GetListenable<T extends object> = {
     [K in keyof T as T[K] extends Store<any> ? K : never]: K
 } & {
     [K in keyof T as T[K] extends Param<any> ? K : never]: K
+} & {
+    [K in keyof T as T[K] extends Action<any, any> ? K : never]: K
 }
 
 export type Effect = {

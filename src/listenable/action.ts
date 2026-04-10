@@ -18,7 +18,7 @@ export type ActionOptions<T = any, D = any, E = Error> = {
 export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
     private controller: AbortController = new AbortController()
 
-    public result: TResult<D, E> = Result.idle()
+    public current: TResult<D, E> = Result.idle()
 
     constructor(
         private func: ActionFunction<P, R>,
@@ -40,7 +40,7 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
 
     public reset() {
         this.controller.abort()
-        this.result = Result.idle()
+        this.current = Result.idle()
         this.emit()
     }
 
@@ -50,10 +50,10 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
             this.controller = new AbortController()
         }
 
-        if (this.result.type === "success" || this.result.type === "retrying") {
-            this.result = Result.retrying(this.result.value)
+        if (this.current.type === "success" || this.current.type === "retrying") {
+            this.current = Result.retrying(this.current.value)
         } else {
-            this.result = Result.pending()
+            this.current = Result.pending()
             this.options.onPending?.()
         }
 
@@ -64,7 +64,7 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
         actionFunc(...args)
             .then((res) => {
                 const data = this.options.mapResult ? this.options.mapResult(res) : (res as any)
-                this.result = Result.success(data)
+                this.current = Result.success(data)
                 this.options.onSuccess?.(data)
             })
             .catch((err) => {
@@ -75,7 +75,7 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
                 const failure = this.options.mapError
                     ? this.options.mapError(err instanceof Error ? err : new Error(String(err)))
                     : (err as any)
-                this.result = Result.failure(failure)
+                this.current = Result.failure(failure)
                 this.options.onError?.(failure)
             })
             .finally(() => this.emit())

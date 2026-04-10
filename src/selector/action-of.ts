@@ -10,11 +10,11 @@ export function actionOf<V extends object, K extends PickActionFrom<V>>(viewMode
         throw Error(`Property ${String(key)} is not an action`)
     }
 
-    const [state, setState] = createStore(action.result)
+    const [state, setState] = createStore(action.current)
 
     onMount(() => {
         function listener() {
-            setState(reconcile(action.result))
+            setState(reconcile(action.current))
         }
 
         const unsubscribe = action.subscribe(listener)
