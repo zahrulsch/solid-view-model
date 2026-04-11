@@ -21,10 +21,15 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
     public current: TResult<D, E> = Result.idle()
 
     constructor(
-        private func: ActionFunction<P, R>,
+        private func: ActionFunction<P, R> = () => async () => undefined as any,
         private options: ActionOptions<R, D, E> = {}
     ) {
         super()
+    }
+
+    public setActionFunction(func: ActionFunction<P, R>) {
+        this.func = func
+        return this
     }
 
     public abort() {

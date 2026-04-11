@@ -20,65 +20,65 @@ describe("action", () => {
 
     it("check action execution, no execute should be idle", () => {
         const act = action(mockFunc)
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
     })
 
     it("check action execution, execute should be pending", () => {
         const act = action(mockFunc)
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
         act.execute()
-        expect(act.result.type === "pending").toBe(true)
+        expect(act.current.type === "pending").toBe(true)
     })
 
     it("check action data polosan tanpa mapper", async () => {
         const act = action(mockFunc)
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
         act.execute()
-        expect(act.result.type === "pending").toBe(true)
+        expect(act.current.type === "pending").toBe(true)
 
         await vi.runAllTimersAsync()
 
-        expect(act.result.type === "success").toBe(true)
-        expect(act.result.value).toBe("test")
+        expect(act.current.type === "success").toBe(true)
+        expect(act.current.value).toBe("test")
     })
 
     it("check action error polosan tanpa mapper", async () => {
         const act = action(mockFuncError)
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
         act.execute()
-        expect(act.result.type === "pending").toBe(true)
+        expect(act.current.type === "pending").toBe(true)
 
         await vi.runAllTimersAsync()
 
-        expect(act.result.type === "failure").toBe(true)
-        expect(act.result.error.message).toBe("test error")
+        expect(act.current.type === "failure").toBe(true)
+        expect(act.current.error.message).toBe("test error")
     })
 
     it("check action data dengan mapper", async () => {
         const act = action(mockFunc, {
             mapResult: (res) => res.toUpperCase(),
         })
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
         act.execute()
-        expect(act.result.type === "pending").toBe(true)
+        expect(act.current.type === "pending").toBe(true)
 
         await vi.runAllTimersAsync()
 
-        expect(act.result.type === "success").toBe(true)
-        expect(act.result.value).toBe("TEST")
+        expect(act.current.type === "success").toBe(true)
+        expect(act.current.value).toBe("TEST")
     })
 
     it("check action error dengan mapper", async () => {
         const act = action(mockFuncError, {
             mapError: (err) => new Error("Mapped: " + err.message),
         })
-        expect(act.result.type === "idle").toBe(true)
+        expect(act.current.type === "idle").toBe(true)
         act.execute()
-        expect(act.result.type === "pending").toBe(true)
+        expect(act.current.type === "pending").toBe(true)
 
         await vi.runAllTimersAsync()
 
-        expect(act.result.type === "failure").toBe(true)
-        expect(act.result.error.message).toBe("Mapped: test error")
+        expect(act.current.type === "failure").toBe(true)
+        expect(act.current.error.message).toBe("Mapped: test error")
     })
 })
