@@ -88,7 +88,7 @@ export class Action<P extends any[], R, D = R, E = Error> extends Listenable {
 }
 
 export function action<P extends any[], R, D = R, E = Error>(
-    func: ActionFunction<P, R>,
+    func: ActionFunction<P, R> = () => async () => undefined as any,
     options: ActionOptions<R, D, E> = {}
 ): Action<P, R, D, E> {
     return new Action(func, options)
